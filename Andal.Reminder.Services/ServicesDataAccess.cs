@@ -705,18 +705,9 @@ namespace Andal.Reminder.Services
                     + " FROM _Employee WHERE ResignDate IS NULL AND ISNULL(Email, '') <> '' "
                     + " AND DAY(DateOfBirth) = DAY(GETDATE()) AND MONTH(DateOfBirth) = MONTH(GETDATE()) AND DATEDIFF(YEAR,DateOfBirth,GETDATE())>0 ";
                 DataTable oDataTableHBD = ExecuteDataTable(CmdText);
-                string[] stringCCHBD = new string[1];
-                string stringConfigCCHBD = "";
                 if (oDataTableHBD.Rows.Count > 0)
                 {
                     
-                    sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeForHBD"].ToString();
-                    stringConfigCCHBD = ConfigurationSettings.AppSettings["EmailCCToEmployeeForHBD"].ToString().ToLower();
-
-                    if (stringConfigCCHBD != string.Empty)
-                    {
-                        stringCCHBD[0] = stringConfigCCHBD;
-                    }
                     if (sMailTemplateId != string.Empty)
                     {
                         DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
@@ -730,14 +721,7 @@ namespace Andal.Reminder.Services
                                     string sSubject = oDataRowList[0]["Subject"].ToString();
                                     string sBody = oDataRowList[0]["Body"].ToString();
                                     sBody = ReplaceMailBodyforHBDNAniversary(sBody, oDataRow["FullName"].ToString(), oDataRow["Umur"].ToString(), ConvertObjectToDateTime(oDataRow["DateOfBirth"]));
-                                    if (stringConfigCCHBD != string.Empty)
-                                    {
-                                        LocalSendMail(_SMTPUsername, oDataRow["Email"].ToString(), sSubject, sBody, stringCCHBD, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
-                                    }
-                                    else
-                                    {
-                                        LocalSendMail(_SMTPUsername, oDataRow["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
-                                    }
+                                    LocalSendMail(_SMTPUsername, oDataRow["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
                                 }
                             }
                         }

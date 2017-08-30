@@ -315,430 +315,470 @@ namespace Andal.Reminder.Services
             string CmdText1 = string.Empty;
             string sContent = string.Empty;
             string sMailTemplateId = string.Empty;
+			string sCC = string.Empty;
 
             try
             {
                 #region alert pension
-                CmdText = " SELECT DATEDIFF(YEAR,DateOfBirth,GETDATE()), DateOfBirth, EmployeeFullName, "
-                        + " JobDescription, DepartmentDescription, JoinDate, datediff(YEAR,JoinDate,GETDATE()) AS [MasaKerja] "
-                        + "  FROM vEmployee (nolock) "
-                        + " WHERE Status!=4 And ResignDate IS NULL "
-                        + " AND DateDiff(YEAR,DateOfBirth,GETDATE()) =  "
-                        + " (SELECT PensionMAge FROM _SystemInfo (nolock)) "
-                        + " ORDER BY DateDiff(YEAR,JoinDate,GETDATE()) DESC  ";
-                DataTable oDataTablePension = this.ExecuteDataTable(CmdText);
-                if (oDataTablePension.Rows.Count > 0 && GetDateServer().Day == 1 && GetDateServer().Month == 1)
-                {
-                    CmdText1 = " SELECT Email, FullName FROM [ESS_SystemInfoDashBoardNotificationAdmin] (nolock) "
-                        + " INNER JOIN [_Employee] ON ESS_SystemInfoDashBoardNotificationAdmin.Id = _Employee.Id "
-                        + " WHERE ESS_SystemInfoDashBoardNotificationAdmin.SourceType = {0} ";
-                    CmdText1 = string.Format(CmdText1, (int)SourceTypeESS.AlertPension);
-                    DataTable oDataTableAdmin = ExecuteDataTable(CmdText1);
+                //CmdText = " SELECT DATEDIFF(YEAR,DateOfBirth,GETDATE()), DateOfBirth, EmployeeFullName, "
+                //        + " JobDescription, DepartmentDescription, JoinDate, datediff(YEAR,JoinDate,GETDATE()) AS [MasaKerja] "
+                //        + "  FROM vEmployee (nolock) "
+                //        + " WHERE Status!=4 And ResignDate IS NULL "
+                //        + " AND DateDiff(YEAR,DateOfBirth,GETDATE()) =  "
+                //        + " (SELECT PensionMAge FROM _SystemInfo (nolock)) "
+                //        + " ORDER BY DateDiff(YEAR,JoinDate,GETDATE()) DESC  ";
+                //DataTable oDataTablePension = this.ExecuteDataTable(CmdText);
+                //if (oDataTablePension.Rows.Count > 0 && GetDateServer().Day == 1 && GetDateServer().Month == 1)
+                //{
+                //    CmdText1 = " SELECT Email, FullName FROM [ESS_SystemInfoDashBoardNotificationAdmin] (nolock) "
+                //        + " INNER JOIN [_Employee] ON ESS_SystemInfoDashBoardNotificationAdmin.Id = _Employee.Id "
+                //        + " WHERE ESS_SystemInfoDashBoardNotificationAdmin.SourceType = {0} ";
+                //    CmdText1 = string.Format(CmdText1, (int)SourceTypeESS.AlertPension);
+                //    DataTable oDataTableAdmin = ExecuteDataTable(CmdText1);
 
-                    //sContent = "Berikut kami sampaikan nama karyawan yang telah memiliki masa bakti pada " + GetDateServer().ToString("MMM yyyy") + " : ";
-                    sContent = "<BR/><BR/><Table border=\"1\" cellspacing=\"0\" cellpadding=\"3\">"
-                        + " <tr><td><FONT face=Tahoma size=2>NO.</Font></td><td><FONT face=Tahoma size=2>NAMA</Font></td> "
-                        + " <td><FONT face=Tahoma size=2>JABATAN</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>DIVISI</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>JOIN DATE</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>MASA KERJA</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>TGL PENSIUN</Font></td>"
-                        + " </tr>";
+                //    //sContent = "Berikut kami sampaikan nama karyawan yang telah memiliki masa bakti pada " + GetDateServer().ToString("MMM yyyy") + " : ";
+                //    sContent = "<BR/><BR/><Table border=\"1\" cellspacing=\"0\" cellpadding=\"3\">"
+                //        + " <tr><td><FONT face=Tahoma size=2>NO.</Font></td><td><FONT face=Tahoma size=2>NAMA</Font></td> "
+                //        + " <td><FONT face=Tahoma size=2>JABATAN</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>DIVISI</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>JOIN DATE</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>MASA KERJA</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>TGL PENSIUN</Font></td>"
+                //        + " </tr>";
 
-                    int i = 1;
-                    foreach (DataRow oDataRow in oDataTablePension.Rows)
-                    {
-                        DateTime PensionDate = new DateTime(GetDateServer().Year, ConvertObjectToDateTime(oDataRow["JoinDate"]).Month, ConvertObjectToDateTime(oDataRow["JoinDate"]).Day);
-                        sContent += " <tr><td><FONT face=Tahoma size=2>" + i.ToString() + "</Font></td><td><FONT face=Tahoma size=2>" + oDataRow["EmployeeFullName"].ToString() + "</Font></td> "
-                        + " <td><FONT face=Tahoma size=2>" + oDataRow["JobDescription"].ToString() + "</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>" + oDataRow["DepartmentDescription"].ToString() + "</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>" + ConvertObjectToDateTime(oDataRow["JoinDate"]).ToString("dd MMM yyyy") + "</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>" + oDataRow["MasaKerja"].ToString() + "</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>" + PensionDate.ToString("dd MMM yyyy") + "</Font></td>"
-                        + " </tr>";
-                        i++;
-                    }
-                    sContent += "</Table>";
+                //    int i = 1;
+                //    foreach (DataRow oDataRow in oDataTablePension.Rows)
+                //    {
+                //        DateTime PensionDate = new DateTime(GetDateServer().Year, ConvertObjectToDateTime(oDataRow["JoinDate"]).Month, ConvertObjectToDateTime(oDataRow["JoinDate"]).Day);
+                //        sContent += " <tr><td><FONT face=Tahoma size=2>" + i.ToString() + "</Font></td><td><FONT face=Tahoma size=2>" + oDataRow["EmployeeFullName"].ToString() + "</Font></td> "
+                //        + " <td><FONT face=Tahoma size=2>" + oDataRow["JobDescription"].ToString() + "</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>" + oDataRow["DepartmentDescription"].ToString() + "</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>" + ConvertObjectToDateTime(oDataRow["JoinDate"]).ToString("dd MMM yyyy") + "</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>" + oDataRow["MasaKerja"].ToString() + "</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>" + PensionDate.ToString("dd MMM yyyy") + "</Font></td>"
+                //        + " </tr>";
+                //        i++;
+                //    }
+                //    sContent += "</Table>";
 
-                    sMailTemplateId = ConfigurationSettings.AppSettings["EmailToAdminForPensionListAlert"].ToString();
+                //    sMailTemplateId = ConfigurationSettings.AppSettings["EmailToAdminForPensionListAlert"].ToString();
 
-                    if (sMailTemplateId != string.Empty)
-                    {
-                        foreach (DataRow drAdmin in oDataTableAdmin.Rows)
-                        {
-                            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
-                            if (oDataTableMailTemplate.Rows.Count > 0)
-                            {
-                                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
-                                if (oDataRowList.Length > 0)
-                                {
-                                    string sSubject = oDataRowList[0]["Subject"].ToString();
-                                    string sBody = oDataRowList[0]["Body"].ToString();
-                                    sBody = ReplaceMailBodyforPensionNContractProbation(sBody, drAdmin["FullName"].ToString(), GetDateServer().Year.ToString(), sContent);
-                                    LocalSendMail(_SMTPUsername, drAdmin["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+                //    if (sMailTemplateId != string.Empty)
+                //    {
+                //        foreach (DataRow drAdmin in oDataTableAdmin.Rows)
+                //        {
+                //            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
+                //            if (oDataTableMailTemplate.Rows.Count > 0)
+                //            {
+                //                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
+                //                if (oDataRowList.Length > 0)
+                //                {
+                //                    string sSubject = oDataRowList[0]["Subject"].ToString();
+                //                    string sBody = oDataRowList[0]["Body"].ToString();
+                //                    sBody = ReplaceMailBodyforPensionNContractProbation(sBody, drAdmin["FullName"].ToString(), GetDateServer().Year.ToString(), sContent);
+                //                    LocalSendMail(_SMTPUsername, drAdmin["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
 
-                                }
-                            }
-                        }
-                    }
+                //                }
+                //            }
+                //        }
+                //    }
 
-                }
+                //}
 
                 #endregion
 
                 #region alert probation/contract
-                CmdText = " SELECT "
-                    + " A.*, _Employee.FullName AS EmployeeFullName, _Employee.Email as EmployeeEmail "
-                    + " FROM EmployeeTransaction A (nolock) "
-                    + " INNER JOIN _Employee (nolock) ON A.EmployeeId = _Employee.Id "
-                    + " WHERE A.ReferenceId = '" + ConfigurationSettings.AppSettings["AlertContractProbationRefId"].ToString() + "'";
-                DataTable oDataTable = this.ExecuteDataTable(CmdText);
+                //CmdText = " SELECT "
+                //    + " A.*, _Employee.FullName AS EmployeeFullName, _Employee.Email as EmployeeEmail "
+                //    + " FROM EmployeeTransaction A (nolock) "
+                //    + " INNER JOIN _Employee (nolock) ON A.EmployeeId = _Employee.Id "
+                //    + " WHERE A.ReferenceId = '" + ConfigurationSettings.AppSettings["AlertContractProbationRefId"].ToString() + "'";
+                //DataTable oDataTable = this.ExecuteDataTable(CmdText);
 
-                CmdText = " SELECT A.Id AS EmployeeId, A.Gender,A.Number As \"Employee ID\", A.FullName AS \"EmployeeFullname\",  "
-                    + " A.JoinDate AS JoinDate, Datediff(DAY,GETDATE(),A.EndEffectiveDate) AS DayRange, "
-                    + " dbo.fn_EmployeeStatus(A.EmployeeStatus) AS EmployeeStatus, A.EmployeeStatus AS EmployeeStatusId, A.Id, "
-                    + " A.EndEffectiveDate AS \"End Contract/Probation/Expire Date\", AA.ID AS TransactionId, AA.Number AS RegNo, "
-                    + " 'Status Alteration' AS Type, " + Convert.ToInt32(SourceType.StatusAlteration) + " AS TypeId "
-                    + "  FROM _Employee A (NoLock) "
-                    + " LEFT JOIN ( "
-                    + " SELECT Number, EmployeeId, EffectiveDate, FromType, StatusAlteration.ID  FROM StatusAlteration (NoLock) "
-                    + " INNER JOIN EmployeeTransaction (NoLock) On StatusAlteration.Id=EmployeeTransaction.ReferenceId "
-                    + " ) AA ON A.Id=AA.EmployeeId AND A.EmployeeStatus=AA.FromType AND DATEDIFF(DAY,AA.EffectiveDate, A.EndEffectiveDate)>= 30 "
-                    + " WHERE  "
-                    + " (A.EmployeeStatus={1} OR ISNULL(A.EmployeeStatus,{0})={0}) "
-                    + " AND  "
-                    + " A.Id NOT IN (SELECT itemid FROM _CustomFieldData (nolock) WHERE [Disable Email Reminder] = 1 ) "
-                    + " AND  "
-                    + " DATEDIFF(DAY,GETDATE(),A.EndEffectiveDate) IN (SELECT Day FROM ESS_SystemInfoDashBoardContractProbation (nolock))  "
-                    + this.GetSelectQueryValidEmployee("A", true);
-                CmdText = string.Format(CmdText, Convert.ToInt32(EmployeeStatus.Probation), Convert.ToInt32(EmployeeStatus.Contract),
-                Convert.ToInt32(_SystemInfo.AlertMinus), Convert.ToInt32(_SystemInfo.AlertPlus));
+                //CmdText = " SELECT A.Id AS EmployeeId, A.Gender,A.Number As \"Employee ID\", A.FullName AS \"EmployeeFullname\",  "
+                //    + " A.JoinDate AS JoinDate, Datediff(DAY,GETDATE(),A.EndEffectiveDate) AS DayRange, "
+                //    + " dbo.fn_EmployeeStatus(A.EmployeeStatus) AS EmployeeStatus, A.EmployeeStatus AS EmployeeStatusId, A.Id, "
+                //    + " A.EndEffectiveDate AS \"End Contract/Probation/Expire Date\", AA.ID AS TransactionId, AA.Number AS RegNo, "
+                //    + " 'Status Alteration' AS Type, " + Convert.ToInt32(SourceType.StatusAlteration) + " AS TypeId "
+                //    + "  FROM _Employee A (NoLock) "
+                //    + " LEFT JOIN ( "
+                //    + " SELECT Number, EmployeeId, EffectiveDate, FromType, StatusAlteration.ID  FROM StatusAlteration (NoLock) "
+                //    + " INNER JOIN EmployeeTransaction (NoLock) On StatusAlteration.Id=EmployeeTransaction.ReferenceId "
+                //    + " ) AA ON A.Id=AA.EmployeeId AND A.EmployeeStatus=AA.FromType AND DATEDIFF(DAY,AA.EffectiveDate, A.EndEffectiveDate)>= 30 "
+                //    + " WHERE  "
+                //    + " (A.EmployeeStatus={1} OR ISNULL(A.EmployeeStatus,{0})={0}) "
+                //    + " AND  "
+                //    + " A.Id NOT IN (SELECT itemid FROM _CustomFieldData (nolock) WHERE [Disable Email Reminder] = 1 ) "
+                //    + " AND  "
+                //    + " DATEDIFF(DAY,GETDATE(),A.EndEffectiveDate) IN (SELECT Day FROM ESS_SystemInfoDashBoardContractProbation (nolock))  "
+                //    + this.GetSelectQueryValidEmployee("A", true);
+                //CmdText = string.Format(CmdText, Convert.ToInt32(EmployeeStatus.Probation), Convert.ToInt32(EmployeeStatus.Contract),
+                //Convert.ToInt32(_SystemInfo.AlertMinus), Convert.ToInt32(_SystemInfo.AlertPlus));
 
-                DataTable oDataTableProbationContract = this.ExecuteDataTable(CmdText);
-                if (oDataTableProbationContract.Rows.Count > 0)
-                {
-                    CmdText1 = " SELECT Email, FullName FROM [ESS_SystemInfoDashBoardNotificationAdmin] (nolock) "
-                        + " INNER JOIN [_Employee] ON ESS_SystemInfoDashBoardNotificationAdmin.Id = _Employee.Id "
-                        + " WHERE ESS_SystemInfoDashBoardNotificationAdmin.SourceType = {0} ";
-                    CmdText1 = string.Format(CmdText1, (int)SourceTypeESS.AlertContractProbation);
-                    DataTable oDataTableAdmin = ExecuteDataTable(CmdText1);
-                    List<string> AdminList = new List<string>();
-                    foreach (DataRow oDataRow in oDataTableAdmin.Rows)
-                    {
-                        string sEmail = ConvertObjectToString(oDataRow["Email"]);
-                        AdminList.Add(sEmail);
-                    }
+                //DataTable oDataTableProbationContract = this.ExecuteDataTable(CmdText);
+                //if (oDataTableProbationContract.Rows.Count > 0)
+                //{
+                //    CmdText1 = " SELECT Email, FullName FROM [ESS_SystemInfoDashBoardNotificationAdmin] (nolock) "
+                //        + " INNER JOIN [_Employee] ON ESS_SystemInfoDashBoardNotificationAdmin.Id = _Employee.Id "
+                //        + " WHERE ESS_SystemInfoDashBoardNotificationAdmin.SourceType = {0} ";
+                //    CmdText1 = string.Format(CmdText1, (int)SourceTypeESS.AlertContractProbation);
+                //    DataTable oDataTableAdmin = ExecuteDataTable(CmdText1);
+                //    List<string> AdminList = new List<string>();
+                //    foreach (DataRow oDataRow in oDataTableAdmin.Rows)
+                //    {
+                //        string sEmail = ConvertObjectToString(oDataRow["Email"]);
+                //        AdminList.Add(sEmail);
+                //    }
 
-                    JobStructureList oJobStructureList = new JobStructureList();
-                    foreach (DataRow oDataRow in oDataTableProbationContract.Rows)
-                    {
-                        Guid EmployeeId = ConvertObjectToGuid(oDataRow["EmployeeId"]);
-                        int DayRange = ConvertObjectToInt(oDataRow["DayRange"]);
-                        int Gender = ConvertObjectToInt(oDataRow["Gender"]);
-                        oJobStructureList = LoadsJobStructure(EmployeeId);
+                //    JobStructureList oJobStructureList = new JobStructureList();
+                //    foreach (DataRow oDataRow in oDataTableProbationContract.Rows)
+                //    {
+                //        Guid EmployeeId = ConvertObjectToGuid(oDataRow["EmployeeId"]);
+                //        int DayRange = ConvertObjectToInt(oDataRow["DayRange"]);
+                //        int Gender = ConvertObjectToInt(oDataRow["Gender"]);
+                //        oJobStructureList = LoadsJobStructure(EmployeeId);
 
-                        string EmployeeName = string.Empty;
-                        if (Gender == 0)
-                        {
-                            EmployeeName += "Sdri. ";
-                        }
-                        else EmployeeName += "Sdr. ";
-                        EmployeeName += oDataRow["EmployeeFullName"].ToString();
+                //        string EmployeeName = string.Empty;
+                //        if (Gender == 0)
+                //        {
+                //            EmployeeName += "Sdri. ";
+                //        }
+                //        else EmployeeName += "Sdr. ";
+                //        EmployeeName += oDataRow["EmployeeFullName"].ToString();
 
-                        sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeNSuperiorForContractProbationAlert"].ToString();
+                //        sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeNSuperiorForContractProbationAlert"].ToString();
 
-                        if (sMailTemplateId != string.Empty)
-                        {
-                            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
-                            if (oDataTableMailTemplate.Rows.Count > 0)
-                            {
-                                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
-                                if (oDataRowList.Length > 0)
-                                {
-                                    string sSubject = oDataRowList[0]["Subject"].ToString();
-                                    string sBody = oDataRowList[0]["Body"].ToString();
-                                    sBody = ReplaceMailBodyforContractProbation(sBody, EmployeeName);
-                                    //LocalSendMail(_SMTPUsername, drAdmin["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+                //        if (sMailTemplateId != string.Empty)
+                //        {
+                //            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
+                //            if (oDataTableMailTemplate.Rows.Count > 0)
+                //            {
+                //                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
+                //                if (oDataRowList.Length > 0)
+                //                {
+                //                    string sSubject = oDataRowList[0]["Subject"].ToString();
+                //                    string sBody = oDataRowList[0]["Body"].ToString();
+                //                    sBody = ReplaceMailBodyforContractProbation(sBody, EmployeeName);
+                //                    //LocalSendMail(_SMTPUsername, drAdmin["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
 
-                                    if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1) != null)
-                                    {
-                                        string Email = string.Empty;
-                                        if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1).EmployeeId != EmployeeId)
-                                        {
-                                            if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2) != null)
-                                            {
-                                                if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("000") || oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("00"))
-                                                {
-                                                    Email += oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1).EmployeeMail;
-                                                }
-                                            }
-                                        }
-                                        if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2) != null)
-                                        {
-                                            if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).EmployeeId != EmployeeId)
-                                            {
-                                                if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("000") || oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("00"))
-                                                {
-                                                    if (Email != string.Empty) Email += ";";
-                                                    Email += oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).EmployeeMail;
-                                                }
-                                            }
-                                        }
-                                        if (Email != string.Empty)
-                                        {
+                //                    if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1) != null)
+                //                    {
+                //                        string Email = string.Empty;
+                //                        if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1).EmployeeId != EmployeeId)
+                //                        {
+                //                            if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2) != null)
+                //                            {
+                //                                if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("000") || oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("00"))
+                //                                {
+                //                                    Email += oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1).EmployeeMail;
+                //                                }
+                //                            }
+                //                        }
+                //                        if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2) != null)
+                //                        {
+                //                            if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).EmployeeId != EmployeeId)
+                //                            {
+                //                                if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("000") || oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("00"))
+                //                                {
+                //                                    if (Email != string.Empty) Email += ";";
+                //                                    Email += oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).EmployeeMail;
+                //                                }
+                //                            }
+                //                        }
+                //                        if (Email != string.Empty)
+                //                        {
 
-                                            //this.SendMail(_MailInfo.AdminEmail, Email, oMailTemplate.Subject, oMailTemplate.Body, AdminList.ToArray(), _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
-                                            LocalSendMail(_SMTPUsername, Email, sSubject, sBody, AdminList.ToArray(), _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
-                                        }
-                                    }
+                //                            //this.SendMail(_MailInfo.AdminEmail, Email, oMailTemplate.Subject, oMailTemplate.Body, AdminList.ToArray(), _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+                //                            LocalSendMail(_SMTPUsername, Email, sSubject, sBody, AdminList.ToArray(), _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+                //                        }
+                //                    }
 
-                                }
-                            }
-                        }
-                    }
+                //                }
+                //            }
+                //        }
+                //    }
 
-                }
+                //}
                 #endregion
 
                 #region alert probation/contract after 2 month
-                CmdText = " SELECT "
-                    + " A.*, _Employee.FullName AS EmployeeFullName, _Employee.Email as EmployeeEmail "
-                    + " FROM EmployeeTransaction A (nolock) "
-                    + " INNER JOIN _Employee (nolock) ON A.EmployeeId = _Employee.Id "
-                    + " WHERE A.ReferenceId = '" + ConfigurationSettings.AppSettings["AlertContractProbationRefId"].ToString() + "'";
-                DataTable oDataTableContract = this.ExecuteDataTable(CmdText);
+                //CmdText = " SELECT "
+                //    + " A.*, _Employee.FullName AS EmployeeFullName, _Employee.Email as EmployeeEmail "
+                //    + " FROM EmployeeTransaction A (nolock) "
+                //    + " INNER JOIN _Employee (nolock) ON A.EmployeeId = _Employee.Id "
+                //    + " WHERE A.ReferenceId = '" + ConfigurationSettings.AppSettings["AlertContractProbationRefId"].ToString() + "'";
+                //DataTable oDataTableContract = this.ExecuteDataTable(CmdText);
 
-                CmdText = " SELECT A.Id AS EmployeeId, A.Gender,A.Number As \"Employee ID\", A.FullName AS \"EmployeeFullname\", A.Email AS EmployeeEmail, "
-                    + " A.JoinDate AS JoinDate, Datediff(DAY,GETDATE(),A.EndEffectiveDate) AS DayRange, "
-                    + " dbo.fn_EmployeeStatus(A.EmployeeStatus) AS EmployeeStatus, A.EmployeeStatus AS EmployeeStatusId, A.Id, "
-                    + " A.EndEffectiveDate AS \"End Contract/Probation/Expire Date\", "
-                    //+ " AA.ID AS TransactionId, AA.Number AS RegNo, "
-                    + " 'Status Alteration' AS Type, " + Convert.ToInt32(SourceType.StatusAlteration) + " AS TypeId "
-                    + "  FROM _Employee A (NoLock) "
-                    //+ " LEFT JOIN ( "
-                    //+ " SELECT Number, EmployeeId, EffectiveDate, FromType, StatusAlteration.ID  FROM StatusAlteration (NoLock) "
-                    //+ " INNER JOIN EmployeeTransaction (NoLock) On StatusAlteration.Id=EmployeeTransaction.ReferenceId "
-                    //+ " ) AA ON A.Id=AA.EmployeeId AND A.EmployeeStatus=AA.FromType AND DATEDIFF(DAY,AA.EffectiveDate, A.EndEffectiveDate)>= 30 "
-                    + " WHERE  "
-                    + " (A.EmployeeStatus={1} OR ISNULL(A.EmployeeStatus,{0})={0}) "
-                    + " AND  "
-                    + " A.Id NOT IN (SELECT itemid FROM _CustomFieldData (nolock) WHERE [Disable Email Reminder] = 1 ) "
-                    + " AND  "
-                    + " DATEDIFF(DAY,A.JoinDate,GETDATE()) = " + ConfigurationSettings.AppSettings["AlertContractAfter2Month"].ToString()
-                    + this.GetSelectQueryValidEmployee("A", true);
-                CmdText = string.Format(CmdText, Convert.ToInt32(EmployeeStatus.Probation), Convert.ToInt32(EmployeeStatus.Contract),
-                Convert.ToInt32(_SystemInfo.AlertMinus), Convert.ToInt32(_SystemInfo.AlertPlus));
+                //CmdText = " SELECT A.Id AS EmployeeId, A.Gender,A.Number As \"Employee ID\", A.FullName AS \"EmployeeFullname\", A.Email AS EmployeeEmail, "
+                //    + " A.JoinDate AS JoinDate, Datediff(DAY,GETDATE(),A.EndEffectiveDate) AS DayRange, "
+                //    + " dbo.fn_EmployeeStatus(A.EmployeeStatus) AS EmployeeStatus, A.EmployeeStatus AS EmployeeStatusId, A.Id, "
+                //    + " A.EndEffectiveDate AS \"End Contract/Probation/Expire Date\", "
+                //    //+ " AA.ID AS TransactionId, AA.Number AS RegNo, "
+                //    + " 'Status Alteration' AS Type, " + Convert.ToInt32(SourceType.StatusAlteration) + " AS TypeId "
+                //    + "  FROM _Employee A (NoLock) "
+                //    //+ " LEFT JOIN ( "
+                //    //+ " SELECT Number, EmployeeId, EffectiveDate, FromType, StatusAlteration.ID  FROM StatusAlteration (NoLock) "
+                //    //+ " INNER JOIN EmployeeTransaction (NoLock) On StatusAlteration.Id=EmployeeTransaction.ReferenceId "
+                //    //+ " ) AA ON A.Id=AA.EmployeeId AND A.EmployeeStatus=AA.FromType AND DATEDIFF(DAY,AA.EffectiveDate, A.EndEffectiveDate)>= 30 "
+                //    + " WHERE  "
+                //    + " (A.EmployeeStatus={1} OR ISNULL(A.EmployeeStatus,{0})={0}) "
+                //    + " AND  "
+                //    + " A.Id NOT IN (SELECT itemid FROM _CustomFieldData (nolock) WHERE [Disable Email Reminder] = 1 ) "
+                //    + " AND  "
+                //    + " DATEDIFF(DAY,A.JoinDate,GETDATE()) = " + ConfigurationSettings.AppSettings["AlertContractAfter2Month"].ToString()
+                //    + this.GetSelectQueryValidEmployee("A", true);
+                //CmdText = string.Format(CmdText, Convert.ToInt32(EmployeeStatus.Probation), Convert.ToInt32(EmployeeStatus.Contract),
+                //Convert.ToInt32(_SystemInfo.AlertMinus), Convert.ToInt32(_SystemInfo.AlertPlus));
 
-                DataTable oDataTableProbationContract2 = this.ExecuteDataTable(CmdText);
-                if (oDataTableProbationContract2.Rows.Count > 0)
-                {
-                    CmdText1 = " SELECT Email, FullName FROM [ESS_SystemInfoDashBoardNotificationAdmin] (nolock) "
-                        + " INNER JOIN [_Employee] ON ESS_SystemInfoDashBoardNotificationAdmin.Id = _Employee.Id "
-                        + " WHERE ESS_SystemInfoDashBoardNotificationAdmin.SourceType = {0} ";
-                    CmdText1 = string.Format(CmdText1, (int)SourceTypeESS.AlertContractProbation);
-                    DataTable oDataTableAdmin = ExecuteDataTable(CmdText1);
-                    List<string> AdminList = new List<string>();
-                    foreach (DataRow oDataRow in oDataTableAdmin.Rows)
-                    {
-                        string sEmail = ConvertObjectToString(oDataRow["Email"]);
-                        AdminList.Add(sEmail);
-                    }
+                //DataTable oDataTableProbationContract2 = this.ExecuteDataTable(CmdText);
+                //if (oDataTableProbationContract2.Rows.Count > 0)
+                //{
+                //    CmdText1 = " SELECT Email, FullName FROM [ESS_SystemInfoDashBoardNotificationAdmin] (nolock) "
+                //        + " INNER JOIN [_Employee] ON ESS_SystemInfoDashBoardNotificationAdmin.Id = _Employee.Id "
+                //        + " WHERE ESS_SystemInfoDashBoardNotificationAdmin.SourceType = {0} ";
+                //    CmdText1 = string.Format(CmdText1, (int)SourceTypeESS.AlertContractProbation);
+                //    DataTable oDataTableAdmin = ExecuteDataTable(CmdText1);
+                //    List<string> AdminList = new List<string>();
+                //    foreach (DataRow oDataRow in oDataTableAdmin.Rows)
+                //    {
+                //        string sEmail = ConvertObjectToString(oDataRow["Email"]);
+                //        AdminList.Add(sEmail);
+                //    }
 
-                    JobStructureList oJobStructureList = new JobStructureList();
-                    foreach (DataRow oDataRow in oDataTableProbationContract2.Rows)
-                    {
-                        Guid EmployeeId = ConvertObjectToGuid(oDataRow["EmployeeId"]);
-                        int DayRange = ConvertObjectToInt(oDataRow["DayRange"]);
-                        int Gender = ConvertObjectToInt(oDataRow["Gender"]);
-                        string sEmployeeEmail = ConvertObjectToString(oDataRow["EmployeeEmail"]);
-                        oJobStructureList = LoadsJobStructure(EmployeeId);
+                //    JobStructureList oJobStructureList = new JobStructureList();
+                //    foreach (DataRow oDataRow in oDataTableProbationContract2.Rows)
+                //    {
+                //        Guid EmployeeId = ConvertObjectToGuid(oDataRow["EmployeeId"]);
+                //        int DayRange = ConvertObjectToInt(oDataRow["DayRange"]);
+                //        int Gender = ConvertObjectToInt(oDataRow["Gender"]);
+                //        string sEmployeeEmail = ConvertObjectToString(oDataRow["EmployeeEmail"]);
+                //        oJobStructureList = LoadsJobStructure(EmployeeId);
 
-                        string EmployeeName = string.Empty;
-                        if (Gender == 0)
-                        {
-                            EmployeeName += "Sdri. ";
-                        }
-                        else EmployeeName += "Sdr. ";
-                        EmployeeName += oDataRow["EmployeeFullName"].ToString();
+                //        string EmployeeName = string.Empty;
+                //        if (Gender == 0)
+                //        {
+                //            EmployeeName += "Sdri. ";
+                //        }
+                //        else EmployeeName += "Sdr. ";
+                //        EmployeeName += oDataRow["EmployeeFullName"].ToString();
 
-                        #region email ke atasan dan admin
-                        sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeNSuperiorForContractProbationAlert2"].ToString();
-                        if (sMailTemplateId != string.Empty)
-                        {
-                            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
-                            if (oDataTableMailTemplate.Rows.Count > 0)
-                            {
-                                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
-                                if (oDataRowList.Length > 0)
-                                {
-                                    string sSubject = oDataRowList[0]["Subject"].ToString();
-                                    string sBody = oDataRowList[0]["Body"].ToString();
-                                    sBody = ReplaceMailBodyforContractProbation(sBody, EmployeeName);
+                //        #region email ke atasan dan admin
+                //        sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeNSuperiorForContractProbationAlert2"].ToString();
+                //        if (sMailTemplateId != string.Empty)
+                //        {
+                //            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
+                //            if (oDataTableMailTemplate.Rows.Count > 0)
+                //            {
+                //                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
+                //                if (oDataRowList.Length > 0)
+                //                {
+                //                    string sSubject = oDataRowList[0]["Subject"].ToString();
+                //                    string sBody = oDataRowList[0]["Body"].ToString();
+                //                    sBody = ReplaceMailBodyforContractProbation(sBody, EmployeeName);
 
-                                    if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1) != null)
-                                    {
-                                        string Email = string.Empty;
-                                        if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1).EmployeeId != EmployeeId)
-                                        {
-                                            if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2) != null)
-                                            {
-                                                if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("000") || oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("00"))
-                                                {
-                                                    Email += oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1).EmployeeMail;
-                                                }
-                                            }
-                                        }
-                                        if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2) != null)
-                                        {
-                                            if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).EmployeeId != EmployeeId)
-                                            {
-                                                if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("000") || oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("00"))
-                                                {
-                                                    if (Email != string.Empty) Email += ";";
-                                                    Email += oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).EmployeeMail;
-                                                }
-                                            }
-                                        }
-                                        if (Email != string.Empty)
-                                        {
-                                            LocalSendMail(_SMTPUsername, Email, sSubject, sBody, AdminList.ToArray(), _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
-                                        }
-                                    }
+                //                    if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1) != null)
+                //                    {
+                //                        string Email = string.Empty;
+                //                        if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1).EmployeeId != EmployeeId)
+                //                        {
+                //                            if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2) != null)
+                //                            {
+                //                                if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("000") || oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("00"))
+                //                                {
+                //                                    Email += oJobStructureList.GetNextJob(ApprovalLevel.NextApproval1).EmployeeMail;
+                //                                }
+                //                            }
+                //                        }
+                //                        if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2) != null)
+                //                        {
+                //                            if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).EmployeeId != EmployeeId)
+                //                            {
+                //                                if (oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("000") || oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).JobName.EndsWith("00"))
+                //                                {
+                //                                    if (Email != string.Empty) Email += ";";
+                //                                    Email += oJobStructureList.GetNextJob(ApprovalLevel.NextApproval2).EmployeeMail;
+                //                                }
+                //                            }
+                //                        }
+                //                        if (Email != string.Empty)
+                //                        {
+                //                            LocalSendMail(_SMTPUsername, Email, sSubject, sBody, AdminList.ToArray(), _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+                //                        }
+                //                    }
 
-                                }
-                            }
-                        }
-                        #endregion
+                //                }
+                //            }
+                //        }
+                //        #endregion
 
-                        #region email ke karyawan
-                        sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeNSuperiorForContractProbationAlert2B"].ToString();
-                        if (sMailTemplateId != string.Empty)
-                        {
-                            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
-                            if (oDataTableMailTemplate.Rows.Count > 0)
-                            {
-                                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
-                                if (oDataRowList.Length > 0)
-                                {
-                                    string sSubject = oDataRowList[0]["Subject"].ToString();
-                                    string sBody = oDataRowList[0]["Body"].ToString();
-                                    sBody = ReplaceMailBodyforContractProbation(sBody, EmployeeName);
+                //        #region email ke karyawan
+                //        sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeNSuperiorForContractProbationAlert2B"].ToString();
+                //        if (sMailTemplateId != string.Empty)
+                //        {
+                //            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
+                //            if (oDataTableMailTemplate.Rows.Count > 0)
+                //            {
+                //                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
+                //                if (oDataRowList.Length > 0)
+                //                {
+                //                    string sSubject = oDataRowList[0]["Subject"].ToString();
+                //                    string sBody = oDataRowList[0]["Body"].ToString();
+                //                    sBody = ReplaceMailBodyforContractProbation(sBody, EmployeeName);
 
-                                    if (sEmployeeEmail != string.Empty)
-                                    {
-                                        LocalSendMail(_SMTPUsername, sEmployeeEmail, sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
-                                    }
-                                }
-                            }
-                        }
-                        #endregion
-                    }
+                //                    if (sEmployeeEmail != string.Empty)
+                //                    {
+                //                        LocalSendMail(_SMTPUsername, sEmployeeEmail, sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+                //                    }
+                //                }
+                //            }
+                //        }
+                //        #endregion
+                //    }
 
-                }
+                //}
                 #endregion
 
                 #region masa bakti
-                CmdText = " SELECT DATEDIFF(YEAR,DateOfBirth,GETDATE()),DateOfBirth,EmployeeFullName, "
-                        + " JobDescription,DepartmentDescription,JoinDate,DATEDIFF(YEAR,JoinDate,GETDATE()) AS [MasaKerja] "
-                        + "  FROM vEmployee (nolock) "
-                        + " WHERE status!=4 AND ResignDate IS NULL AND DATEDIFF(MONTH,JoinDate,GETDATE()) != 0"
-                        + " AND DATEDIFF(MONTH,JoinDate,GETDATE()) % (5*12) = 0  "
-                        + " ORDER BY DATEDIFF(YEAR,JoinDate,GETDATE()) DESC ";
-                DataTable oDataTableMasaBakti = ExecuteDataTable(CmdText);
-                if (oDataTableMasaBakti.Rows.Count > 0 && GetDateServer().Day == 1)
-                {
-                    CmdText1 = " SELECT Email, FullName FROM [ESS_SystemInfoDashBoardNotificationAdmin] (nolock) "
-                        + " INNER JOIN [_Employee] ON ESS_SystemInfoDashBoardNotificationAdmin.Id = _Employee.Id "
-                        + " WHERE ESS_SystemInfoDashBoardNotificationAdmin.SourceType = {0} ";
-                    CmdText1 = string.Format(CmdText1, (int)SourceTypeESS.AlertMasaBakti);
-                    DataTable oDataTableAdmin = ExecuteDataTable(CmdText1);
+                //CmdText = " SELECT DATEDIFF(YEAR,DateOfBirth,GETDATE()),DateOfBirth,EmployeeFullName, "
+                //        + " JobDescription,DepartmentDescription,JoinDate,DATEDIFF(YEAR,JoinDate,GETDATE()) AS [MasaKerja] "
+                //        + "  FROM vEmployee (nolock) "
+                //        + " WHERE status!=4 AND ResignDate IS NULL AND DATEDIFF(MONTH,JoinDate,GETDATE()) != 0"
+                //        + " AND DATEDIFF(MONTH,JoinDate,GETDATE()) % (5*12) = 0  "
+                //        + " ORDER BY DATEDIFF(YEAR,JoinDate,GETDATE()) DESC ";
+                //DataTable oDataTableMasaBakti = ExecuteDataTable(CmdText);
+                //if (oDataTableMasaBakti.Rows.Count > 0 && GetDateServer().Day == 1)
+                //{
+                //    CmdText1 = " SELECT Email, FullName FROM [ESS_SystemInfoDashBoardNotificationAdmin] (nolock) "
+                //        + " INNER JOIN [_Employee] ON ESS_SystemInfoDashBoardNotificationAdmin.Id = _Employee.Id "
+                //        + " WHERE ESS_SystemInfoDashBoardNotificationAdmin.SourceType = {0} ";
+                //    CmdText1 = string.Format(CmdText1, (int)SourceTypeESS.AlertMasaBakti);
+                //    DataTable oDataTableAdmin = ExecuteDataTable(CmdText1);
 
-                    //string sContent = "Berikut kami sampaikan nama karyawan yang telah memiliki masa bakti pada " + GetDateServer().ToString("MMM yyyy") + " : ";
-                    sContent = "<BR/><BR/><Table border=\"1\" cellspacing=\"0\" cellpadding=\"3\">"
-                        + " <tr><td><FONT face=Tahoma size=2>NO.</Font></td><td><FONT face=Tahoma size=2>NAMA</Font></td> "
-                        + " <td><FONT face=Tahoma size=2>JABATAN</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>DIVISI</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>JOIN DATE</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>MASA KERJA</Font></td>"
-                        + " </tr>";
+                //    //string sContent = "Berikut kami sampaikan nama karyawan yang telah memiliki masa bakti pada " + GetDateServer().ToString("MMM yyyy") + " : ";
+                //    sContent = "<BR/><BR/><Table border=\"1\" cellspacing=\"0\" cellpadding=\"3\">"
+                //        + " <tr><td><FONT face=Tahoma size=2>NO.</Font></td><td><FONT face=Tahoma size=2>NAMA</Font></td> "
+                //        + " <td><FONT face=Tahoma size=2>JABATAN</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>DIVISI</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>JOIN DATE</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>MASA KERJA</Font></td>"
+                //        + " </tr>";
 
-                    int i = 1;
-                    foreach (DataRow oDataRow in oDataTableMasaBakti.Rows)
-                    {
-                        sContent += " <tr><td><FONT face=Tahoma size=2>" + i.ToString() + "</Font></td><td><FONT face=Tahoma size=2>" + oDataRow["EmployeeFullName"].ToString() + "</Font></td> "
-                        + " <td><FONT face=Tahoma size=2>" + oDataRow["JobDescription"].ToString() + "</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>" + oDataRow["DepartmentDescription"].ToString() + "</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>" + ConvertObjectToDateTime(oDataRow["JoinDate"]).ToString("dd MMM yyyy") + "</Font></td>"
-                        + " <td><FONT face=Tahoma size=2>" + oDataRow["MasaKerja"].ToString() + "</Font></td>"
-                        + " </tr>";
-                        i++;
-                    }
-                    sContent += "</Table>";
+                //    int i = 1;
+                //    foreach (DataRow oDataRow in oDataTableMasaBakti.Rows)
+                //    {
+                //        sContent += " <tr><td><FONT face=Tahoma size=2>" + i.ToString() + "</Font></td><td><FONT face=Tahoma size=2>" + oDataRow["EmployeeFullName"].ToString() + "</Font></td> "
+                //        + " <td><FONT face=Tahoma size=2>" + oDataRow["JobDescription"].ToString() + "</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>" + oDataRow["DepartmentDescription"].ToString() + "</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>" + ConvertObjectToDateTime(oDataRow["JoinDate"]).ToString("dd MMM yyyy") + "</Font></td>"
+                //        + " <td><FONT face=Tahoma size=2>" + oDataRow["MasaKerja"].ToString() + "</Font></td>"
+                //        + " </tr>";
+                //        i++;
+                //    }
+                //    sContent += "</Table>";
 
-                    sMailTemplateId = ConfigurationSettings.AppSettings["EmailToAdminForMasaBaktiListAlert"].ToString();
+                //    sMailTemplateId = ConfigurationSettings.AppSettings["EmailToAdminForMasaBaktiListAlert"].ToString();
 
-                    if (sMailTemplateId != string.Empty)
-                    {
-                        foreach (DataRow drAdmin in oDataTableAdmin.Rows)
-                        {
-                            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
-                            if (oDataTableMailTemplate.Rows.Count > 0)
-                            {
-                                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
-                                if (oDataRowList.Length > 0)
-                                {
-                                    string sSubject = oDataRowList[0]["Subject"].ToString();
-                                    string sBody = oDataRowList[0]["Body"].ToString();
-                                    sBody = ReplaceMailBodyforPensionNContractProbation(sBody, drAdmin["FullName"].ToString(), GetDateServer().Year.ToString(), sContent);
-                                    LocalSendMail(_SMTPUsername, drAdmin["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
-                                }
-                            }
-                        }
-                    }
+                //    if (sMailTemplateId != string.Empty)
+                //    {
+                //        foreach (DataRow drAdmin in oDataTableAdmin.Rows)
+                //        {
+                //            DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
+                //            if (oDataTableMailTemplate.Rows.Count > 0)
+                //            {
+                //                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
+                //                if (oDataRowList.Length > 0)
+                //                {
+                //                    string sSubject = oDataRowList[0]["Subject"].ToString();
+                //                    string sBody = oDataRowList[0]["Body"].ToString();
+                //                    sBody = ReplaceMailBodyforPensionNContractProbation(sBody, drAdmin["FullName"].ToString(), GetDateServer().Year.ToString(), sContent);
+                //                    LocalSendMail(_SMTPUsername, drAdmin["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+                //                }
+                //            }
+                //        }
+                //    }
 
-                }
+                //}
 
                 #endregion
 
                 #region ultah
-                CmdText = " SELECT FullName, DateOfBirth, Email, DATEDIFF(YEAR,DateOfBirth,GETDATE()) AS Umur  "
-                    + " FROM _Employee WHERE ResignDate IS NULL AND ISNULL(Email, '') <> '' "
-                    + " AND DAY(DateOfBirth) = DAY(GETDATE()) AND MONTH(DateOfBirth) = MONTH(GETDATE()) AND DATEDIFF(YEAR,DateOfBirth,GETDATE())>0 ";
-                DataTable oDataTableHBD = ExecuteDataTable(CmdText);
-                if (oDataTableHBD.Rows.Count > 0)
-                {
-                    
-                    if (sMailTemplateId != string.Empty)
-                    {
-                        DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
-                        if (oDataTableMailTemplate.Rows.Count > 0)
-                        {
-                            foreach (DataRow oDataRow in oDataTableHBD.Rows)
-                            {
-                                DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
-                                if (oDataRowList.Length > 0)
-                                {
-                                    string sSubject = oDataRowList[0]["Subject"].ToString();
-                                    string sBody = oDataRowList[0]["Body"].ToString();
-                                    sBody = ReplaceMailBodyforHBDNAniversary(sBody, oDataRow["FullName"].ToString(), oDataRow["Umur"].ToString(), ConvertObjectToDateTime(oDataRow["DateOfBirth"]));
-                                    LocalSendMail(_SMTPUsername, oDataRow["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
-                                }
-                            }
-                        }
-                    }
-                }
-                #endregion
+                CmdText = string.Empty;
+                CmdText = string.Concat(CmdText, " SELECT FullName, DateOfBirth, Email, DATEDIFF(YEAR,DateOfBirth,GETDATE()) AS Umur  ");
+                CmdText = string.Concat(CmdText, " FROM _Employee WHERE ResignDate IS NULL AND ISNULL(Email, '') <> '' ");
+                CmdText = string.Concat(CmdText, " AND DAY(DateOfBirth) = DAY(GETDATE()) AND MONTH(DateOfBirth) = MONTH(GETDATE()) AND DATEDIFF(YEAR,DateOfBirth,GETDATE())>0 ");
+					
+				DataTable oDataTableHBD = ExecuteDataTable(CmdText);
+				if (oDataTableHBD.Rows.Count > 0)
+				{
+					sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeForHBD"].ToString();
+					string sMailTemplateCC = ConfigurationSettings.AppSettings["EmailTemplateCCToEmployeeForHBD"].ToString();
+					string sMailCC = ConfigurationSettings.AppSettings["EmailCCToEmployeeForHBD"].ToString();
+					if (sMailTemplateId != string.Empty)
+					{
+						DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
+						if (oDataTableMailTemplate.Rows.Count > 0)
+						{
+							foreach (DataRow oDataRow in oDataTableHBD.Rows)
+							{
+								DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
+								if (oDataRowList.Length > 0)
+								{
+									string sSubject = oDataRowList[0]["Subject"].ToString();
+									string sBody = oDataRowList[0]["Body"].ToString();
+									sBody = ReplaceMailBodyforHBDNAniversary(sBody, oDataRow["FullName"].ToString(), oDataRow["Umur"].ToString(), ConvertObjectToDateTime(oDataRow["DateOfBirth"]));
+									LocalSendMail(_SMTPUsername, oDataRow["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+								}
+								if(sMailTemplateCC != string.Empty&& sMailCC != string.Empty)
+								{
+									DataRow[] dataRowCC = oDataTableMailTemplate.Select("Id='" + sMailTemplateCC.ToString() + "'");
+									if (dataRowCC.Length > 0)
+									{
+										string sSubject = dataRowCC[0]["Subject"].ToString();
+										string sBody = dataRowCC[0]["Body"].ToString();
+										sBody = ReplaceMailBodyforHBDNAniversary(sBody, oDataRow["FullName"].ToString(), oDataRow["Umur"].ToString(), ConvertObjectToDateTime(oDataRow["DateOfBirth"]));
+										LocalSendMail(_SMTPUsername, sMailCC, sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+									}
+								}
+							}
+						}
+					}
+				}
+					
+					//#region send to CC
+					//sMailTemplateId = ConfigurationSettings.AppSettings["EmailTemplateCCToEmployeeForHBD"].ToString();
+					//sCC= ConfigurationSettings.AppSettings["EmailCCToEmployeeForHBD"].ToString();
+					//if (sMailTemplateId != string.Empty && sCC != string.Empty)
+					//{
+					//	DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
+					//	if (oDataTableMailTemplate.Rows.Count > 0)
+					//	{
+					//		DataRow[] oDataRowList = oDataTableMailTemplate.Select("Id='" + sMailTemplateId.ToString() + "'");
+					//		if (oDataRowList.Length > 0)
+					//		{
+					//			string sSubject = oDataRowList[0]["Subject"].ToString();
+					//			string sBody = oDataRowList[0]["Body"].ToString();
+					//			sBody = ReplaceMailBodyforHBDNAniversary(sBody, oDataRow["FullName"].ToString(), oDataRow["Umur"].ToString(), ConvertObjectToDateTime(oDataRow["DateOfBirth"]));
+					//			LocalSendMail(_SMTPUsername, oDataRow["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+							
+					//		}
+					//}
 
-                #region anniversary
-                CmdText = " SELECT FullName, JoinDate, Email, DATEDIFF(YEAR,JoinDate,GETDATE()) AS Umur  "
-                    + " FROM _Employee WHERE ResignDate IS NULL AND ISNULL(Email, '') <> '' "
-                    + " AND DAY(JoinDate) = DAY(GETDATE()) AND MONTH(JoinDate) = MONTH(GETDATE()) AND DATEDIFF(YEAR,JoinDate,GETDATE())>0";
+					//#endregion
+
+				#endregion
+
+				#region anniversary
+				CmdText = string.Empty;
+                CmdText = string.Concat(CmdText," SELECT FullName, JoinDate, Email, DATEDIFF(YEAR,JoinDate,GETDATE()) AS Umur  ");
+                CmdText = string.Concat(CmdText, " FROM _Employee WHERE ResignDate IS NULL AND ISNULL(Email, '') <> '' ");
+                CmdText = string.Concat(CmdText, " AND DAY(JoinDate) = DAY(GETDATE()) AND MONTH(JoinDate) = MONTH(GETDATE()) AND DATEDIFF(YEAR,JoinDate,GETDATE())>0");
                 DataTable oDataTableAnniversary = ExecuteDataTable(CmdText);
                 if (oDataTableAnniversary.Rows.Count > 0)
                 {
                     sMailTemplateId = ConfigurationSettings.AppSettings["EmailToEmployeeForAnniversary"].ToString();
-
-                    if (sMailTemplateId != string.Empty)
+					string sMailTemplateCC = ConfigurationSettings.AppSettings["EmailTemplateCCToEmployeeForHBD"].ToString();
+					string sMailCC = ConfigurationSettings.AppSettings["EmailCCToEmployeeForHBD"].ToString();
+					if (sMailTemplateId != string.Empty)
                     {
                         DataTable oDataTableMailTemplate = LoadsMailNotificationTemplate();
                         if (oDataTableMailTemplate.Rows.Count > 0)
@@ -753,7 +793,18 @@ namespace Andal.Reminder.Services
                                     sBody = ReplaceMailBodyforHBDNAniversary(sBody, oDataRow["FullName"].ToString(), oDataRow["Umur"].ToString(), ConvertObjectToDateTime(oDataRow["JoinDate"]));
                                     LocalSendMail(_SMTPUsername, oDataRow["Email"].ToString(), sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
                                 }
-                            }
+								if (sMailTemplateCC != string.Empty && sMailCC != string.Empty)
+								{
+									DataRow[] dataRowCC = oDataTableMailTemplate.Select("Id='" + sMailTemplateCC.ToString() + "'");
+									if (dataRowCC.Length > 0)
+									{
+										string sSubject = dataRowCC[0]["Subject"].ToString();
+										string sBody = dataRowCC[0]["Body"].ToString();
+										sBody = ReplaceMailBodyforHBDNAniversary(sBody, oDataRow["FullName"].ToString(), oDataRow["Umur"].ToString(), ConvertObjectToDateTime(oDataRow["JoinDate"]));
+										LocalSendMail(_SMTPUsername, sMailCC, sSubject, sBody, null, _SMTPServer, _SMTPAuthentication, _SMTPUsername, _SMTPPassword);
+									}
+								}
+							}
                         }
                     }
                 }
